@@ -72,7 +72,7 @@ function handleSubmit(e) {
   const query = getInputData();
 //   processData(query)
   handleEmptyInput();
-  test(query);
+  processData(query);
 }
 function getInputData(){
 	return searchInput.value.trim()
@@ -172,19 +172,9 @@ function handleEmptyInput() {
 	}
 }
 
-async function test(query){
+async function processData(query){
 	const data = await getData(query);
 	const entry = data[0];
-	testState.infoUrl = entry.sourceUrls[0];
-	testState.phonetic = entry.phonetic ? entry.phonetic : entry.phonetics.find((phonetic) => phonetic && phonetic.trim() !== '');
-	testState.searchedWord = entry.word;
-	testState.meaning = entry.meanings.map((meaning) => {
-		return meaning
-	})
-	testState.audioUrl = entry.phonetics.find((item) => item.audio && item.audio.trim() !== '');
-	testState.definitions = testState.meaning.map((item) => {
-		return item.definitions
-	})
 	// If API returns error object
 	if (!Array.isArray(data)) {
 		testState.errorTitle = data.title || '';
@@ -198,6 +188,19 @@ async function test(query){
 	dictionaryState.errorTitle = '';
 	dictionaryState.errorMessage = '';
 	document.querySelector('.not-found').innerHTML = '';
+	
+	testState.infoUrl = entry.sourceUrls[0];
+	const phoneticObj = entry.phonetics.find((phonetic) => {return phonetic?.text})
+
+	testState.phonetic = entry.phonetic ? entry.phonetic : phoneticObj.text 
+	testState.searchedWord = entry.word;
+	testState.meaning = entry.meanings.map((meaning) => {
+		return meaning
+	})
+	testState.audioUrl = entry.phonetics.find((item) => item.audio && item.audio.trim() !== '');
+	testState.definitions = testState.meaning.map((item) => {
+		return item.definitions
+	})
 	
 	renderWord(testState.searchedWord, testState.phonetic);
 	playButton.addEventListener('click', () => {getAudio(testState.audioUrl.audio)});
