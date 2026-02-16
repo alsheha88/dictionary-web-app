@@ -39,18 +39,6 @@ const dictionaryState = {
 	errorMessage: '',
 
 }
-const testState = {
-	searchedWord: '',
-	meaning: [],
-	phonetics: [],
-	audioUrl: '',
-	infoUrl: '',
-	phonetic: '',
-	definitions: '',
-	errorTitle: '',
-	errorMessage: '',
-
-}
 // Functions
 function toggleDropdown(){
 	document.querySelector('.font-options').classList.toggle('show')
@@ -111,7 +99,7 @@ function renderSearchedWordNotFound(title, errorMessage){
 
 }
 function renderPhonetics(){
-	const renderMeaning = testState.meaning.map(phonetic => phonetic);
+	const renderMeaning = dictionaryState.meaning.map(phonetic => phonetic);
 	return renderMeaning.map((phonetic) => {
 	const exampleObj = phonetic.definitions.find(item => item.example && item.example.trim() !== '');
 	const exampleHTML = exampleObj ? `<p>"${exampleObj.example}"</p>` : '';
@@ -177,10 +165,10 @@ async function processData(query){
 	const entry = data[0];
 	// If API returns error object
 	if (!Array.isArray(data)) {
-		testState.errorTitle = data.title || '';
-		testState.errorMessage = (data.message || '') + ' ' + (data.resolution || '');
+		dictionaryState.errorTitle = data.title || '';
+		dictionaryState.errorMessage = (data.message || '') + ' ' + (data.resolution || '');
 		document.querySelector('.not-found').innerHTML =
-			renderSearchedWordNotFound(testState.errorTitle, testState.errorMessage);
+			renderSearchedWordNotFound(dictionaryState.errorTitle, dictionaryState.errorMessage);
 		return;
 	}
 
@@ -189,20 +177,20 @@ async function processData(query){
 	dictionaryState.errorMessage = '';
 	document.querySelector('.not-found').innerHTML = '';
 	
-	testState.infoUrl = entry.sourceUrls[0];
+	dictionaryState.infoUrl = entry.sourceUrls[0];
 	const phoneticObj = entry.phonetics.find((phonetic) => {return phonetic?.text})
 
-	testState.phonetic = entry.phonetic ? entry.phonetic : phoneticObj.text 
-	testState.searchedWord = entry.word;
-	testState.meaning = entry.meanings.map((meaning) => {
+	dictionaryState.phonetic = entry.phonetic ? entry.phonetic : phoneticObj.text 
+	dictionaryState.searchedWord = entry.word;
+	dictionaryState.meaning = entry.meanings.map((meaning) => {
 		return meaning
 	})
-	testState.audioUrl = entry.phonetics.find((item) => item.audio && item.audio.trim() !== '');
-	testState.definitions = testState.meaning.map((item) => {
+	dictionaryState.audioUrl = entry.phonetics.find((item) => item.audio && item.audio.trim() !== '');
+	dictionaryState.definitions = dictionaryState.meaning.map((item) => {
 		return item.definitions
 	})
 	
-	renderWord(testState.searchedWord, testState.phonetic);
-	playButton.addEventListener('click', () => {getAudio(testState.audioUrl.audio)});
-	searchResult.innerHTML = renderPhonetics() + renderSource(testState.infoUrl);
+	renderWord(dictionaryState.searchedWord, dictionaryState.phonetic);
+	playButton.addEventListener('click', () => {getAudio(dictionaryState.audioUrl.audio)});
+	searchResult.innerHTML = renderPhonetics() + renderSource(dictionaryState.infoUrl);
 }
